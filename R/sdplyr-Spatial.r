@@ -14,7 +14,6 @@ setOldClass( c("grouped_df", "tbl_df", "tbl", "data.frame" ) )
 #'  summarise for points and multipoints, ... todo single Multipoint for multiple points
 #' @param .data A tbl.
 #' @param ... Name-value pairs of expressions. See \code{\link[dplyr]{mutate_}}
-#' @param .dots Used to work around non-standard evaluation. 
 #' @note Beware that attributes stored on Spatial objects *are not* linked to the geometry. Attributes are often used to store the area or perimeter length or centroid values but these may be completely unmatched to the underlying geometries. 
 #' @rdname dplyr-Spatial
 #' @name dplyr-Spatial
@@ -53,15 +52,11 @@ setOldClass( c("grouped_df", "tbl_df", "tbl", "data.frame" ) )
 #' }
 #' @importFrom dplyr %>% arrange mutate_ transmute_ filter_ arrange_ slice_ select_ rename_ distinct_ summarise_
 #' @importFrom lazyeval all_dots
-mutate_.Spatial <-  function(.data, ..., .dots) {
-  dots <- lazyeval::all_dots(.dots, ..., all_named = TRUE)
-  
-  if (.hasSlot(.data, "data")) {
-    dat <- mutate_(.data@data, .dots = dots)
-  } else {
-    stop("no data to mutate for a %s", class(.data))
-  }
-  .data@data <- dat
+mutate.Spatial <-  function(.data, ...) {
+  if (!.hasSlot(.data, "data"))
+    stop("No data slot in %s", class(.data))
+  dots <- rlang:::dots_quosures(..., .named = TRUE)
+  .data@data <- mutate_(.data@data, .dots = dots)
   .data
 }
 
